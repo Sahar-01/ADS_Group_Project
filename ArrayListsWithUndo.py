@@ -115,14 +115,16 @@ class ArrayListWithUndo(ArrayList):
             self.inArray[i] = v
         elif op == "rem":
             # Remove the last element (append undo)
-            self.count -= 1
+            if self.count == 0:
+                self.count = 0
+            else:
+                self.count -= 1
         elif op == "ins":
             # Insert the removed value back to its original position
             self.insert(i, v)
 
 
     def __str__(self):
-        # already implemented
         return str(self.toArray())+"\n-> "+str(self.undos)
         
 # minimal tests ArrayListWithUndo
