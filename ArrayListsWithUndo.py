@@ -137,7 +137,10 @@ class ArrayListWithUndo(ArrayList):
         if op == "set":
             self.inArray[i] = v  # Restore previous value
         elif op == "rem":
-            self.count -= 1  # Undo an append operation
+            if self.count == 0:
+                self.count = 0
+            else:
+                self.count -= 1  # Undo an append operation
         elif op == "ins":
             self.insert(i, v)  # Reinsert a removed element
 
