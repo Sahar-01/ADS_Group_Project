@@ -1,8 +1,14 @@
+class Node:
+   def __init__(self, data):
+      self.left = None
+      self.right = None
+      self.data = data  # Stores parent or size (negative for roots)
+
 class NetworkWithUndo:
     def __init__(self, N):
         self.inArray = ArrayListWithUndo()
         for _ in range(N):
-            self.inArray.append(-1)
+            self.inArray.append(Node(-1))  # Each node is its own root initially
         self.undos = Stack()
         self.undos.push(N)
         
@@ -11,19 +17,19 @@ class NetworkWithUndo:
         
     def add(self):
         N = self.getSize()
-        self.inArray.append(-1)
+        self.inArray.append(Node(-1))
         self.undos.push(1)
         return N
     
     def root(self, i):
         path = []
-        while self.inArray.get(i) >= 0:
+        while self.inArray.get(i).data >= 0:  # Follow parent links
             path.append(i)
-            i = self.inArray.get(i)
+            i = self.inArray.get(i).data
             
         root = i
-        for node in path:
-            self.inArray.set(node, root)
+        for node in path:  # Path compression
+            self.inArray.get(node).data = root
         return root
     
     def merge(self, i, j):
@@ -33,17 +39,17 @@ class NetworkWithUndo:
         if root_i == root_j:
             return
     
-        size_i = -self.inArray.get(root_i)
-        size_j = -self.inArray.get(root_j)
+        size_i = -self.inArray.get(root_i).data
+        size_j = -self.inArray.get(root_j).data
     
-        if size_i < size_j:
-            self.inArray.set(root_i, root_j)
+        if size_i < size_j:  # Attach smaller tree to larger tree
+            self.inArray.get(root_i).data = root_j
             new_size = size_i + size_j
-            self.inArray.set(root_j, -new_size)
+            self.inArray.get(root_j).data = -new_size
         else:
-            self.inArray.set(root_j, root_i)
+            self.inArray.get(root_j).data = root_i
             new_size = size_i + size_j
-            self.inArray.set(root_i, -new_size)
+            self.inArray.get(root_i).data = -new_size
             
         self.undos.push(2)
     
@@ -59,7 +65,7 @@ class NetworkWithUndo:
             self.inArray.undo()
     
     def toArray(self):
-        return self.inArray.toArray()
+        return [node.data for node in self.inArray.toArray()]
             
     def __str__(self):
         return str(self.toArray()) + "\n-> " + str(self.undos)
