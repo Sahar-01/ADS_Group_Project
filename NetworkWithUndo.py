@@ -8,7 +8,8 @@ class NetworkWithUndo:
         self.undos.push(N)
 
     def getSize(self):
-        return len(self.inArray)
+        # already implemented
+        return self.inArray.length()
 
     def add(self):
         new_node = self.getSize()  # New node index
@@ -53,7 +54,8 @@ class NetworkWithUndo:
         pass
 
     def toArray(self):
-        return str(self.inArray)
-
+        # already implemented
+        return self.inArray.toArray()
+        
     def __str__(self):
         return str(self.toArray()) + "\n-> " + str(self.undos)
