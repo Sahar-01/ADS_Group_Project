@@ -1,71 +1,59 @@
-class Node:
-   def __init__(self, data):
-      self.left = None
-      self.right = None
-      self.data = data  # Stores parent or size (negative for roots)
-
 class NetworkWithUndo:
     def __init__(self, N):
+        # already implemented
         self.inArray = ArrayListWithUndo()
-        for _ in range(N):
-            self.inArray.append(Node(-1))  # Each node is its own root initially
+        for _ in range(N): 
+            self.inArray.append(-1)
         self.undos = Stack()
         self.undos.push(N)
-        
+
     def getSize(self):
-        return self.inArray.length()
-        
+        return len(self.inArray)
+
     def add(self):
-        N = self.getSize()
-        self.inArray.append(Node(-1))
-        self.undos.push(1)
-        return N
-    
+        new_node = self.getSize()  # New node index
+        self.inArray.append(-1)  # New node starts as its own root (value -1)
+        self.undos.push(1)  # Record the operation in the undo stack
+
     def root(self, i):
-        path = []
-        while self.inArray.get(i).data >= 0:  # Follow parent links
-            path.append(i)
-            i = self.inArray.get(i).data
-            
-        root = i
-        for node in path:  # Path compression
-            self.inArray.get(node).data = root
-        return root
-    
+        if i < 0 or i >= len(self.inArray):
+            raise IndexError(f"Node {i} is out of bounds.")
+        
+        visited = []
+        while self.inArray[i] >= 0:
+            visited.append(i)
+            i = self.inArray[i]
+        
+        # Path compression
+        for node in visited:
+            self.inArray[node] = i
+        
+        return i
+
     def merge(self, i, j):
         root_i = self.root(i)
         root_j = self.root(j)
-    
+        
+        # Ensure both i and j are root nodes
         if root_i == root_j:
             return
-    
-        size_i = -self.inArray.get(root_i).data
-        size_j = -self.inArray.get(root_j).data
-    
-        if size_i < size_j:  # Attach smaller tree to larger tree
-            self.inArray.get(root_i).data = root_j
-            new_size = size_i + size_j
-            self.inArray.get(root_j).data = -new_size
+
+        size_i = -self.inArray[root_i]
+        size_j = -self.inArray[root_j]
+
+        # Merge smaller cluster into the larger one or if sizes are equal, merge j into i
+        if size_i > size_j or (size_i == size_j and root_i < root_j):
+            self.inArray[root_j] = root_i
+            self.inArray[root_i] = -(size_i + size_j)
         else:
-            self.inArray.get(root_j).data = root_i
-            new_size = size_i + size_j
-            self.inArray.get(root_i).data = -new_size
-            
-        self.undos.push(2)
-    
+            self.inArray[root_i] = root_j
+            self.inArray[root_j] = -(size_i + size_j)
+
     def undo(self):
-        if self.undos.size == 0:
-            return
-        
-        last_op = self.undos.pop()
-        if last_op == 1:
-            self.inArray.undo()
-        elif last_op == 2:
-            self.inArray.undo()
-            self.inArray.undo()
-    
+        pass
+
     def toArray(self):
-        return [node.data for node in self.inArray.toArray()]
-            
+        return str(self.inArray)
+
     def __str__(self):
         return str(self.toArray()) + "\n-> " + str(self.undos)
